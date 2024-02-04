@@ -1,0 +1,39 @@
+.searchbar {
+  background-color: #6c5ce7;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
+
+.input {
+  width: 100%;
+  height: 20px;
+  border-radius: 3px;
+  border: none;
+  outline: none;
+  padding-top: 7px;
+  padding-bottom: 5px;
+  padding-left: 35px;
+  padding-right: 5px;
+  font-size: 1rem;
+}
+
+.form {
+  min-width: 400px;
+  max-width: 600px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.iconbox {
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  left: 10px;
+}
