@@ -10,6 +10,7 @@ class Gallery extends Component {
     this.state = {
       images: [],
       isLoading: false,
+      currentPage: 1,
     };
   }
 
@@ -17,8 +18,12 @@ class Gallery extends Component {
     this.fetchImages();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.searchValue !== this.props.searchValue) {
+      this.setState({ images: [], currentPage: 1 }, () => {
+        this.fetchImages();
+      });
+    } else if (prevState.currentPage !== this.state.currentPage) {
       this.fetchImages();
     }
   }
@@ -26,6 +31,7 @@ class Gallery extends Component {
   fetchImages() {
     const API_KEY = '42205267-7cdd22bea4d61f392d799cc6a';
     const searchQuery = encodeURIComponent(this.props.searchValue);
+    const { currentPage } = this.state;
 
     if (!API_KEY || !searchQuery) {
       console.error('API key or search query is missing.');
@@ -35,23 +41,31 @@ class Gallery extends Component {
 
     this.setState({ isLoading: true });
 
-    const URL = `https://pixabay.com/api/?key=${API_KEY}&q=${searchQuery}&image_type=photo&orientation=horizontal&per_page=12`;
+    const URL = `https://pixabay.com/api/?key=${API_KEY}&q=${searchQuery}&image_type=photo&orientation=horizontal&per_page=12&page=${currentPage}`;
 
     fetch(URL)
       .then(response => response.json())
       .then(data => {
         console.log(data);
         if (parseInt(data.totalHits) > 0) {
-          this.setState({ images: data.hits });
+          this.setState(prevState => ({
+            images: [...prevState.images, ...data.hits],
+          }));
         } else {
           console.log('No hits');
           this.setState({ images: [] });
-          this.setState({ isLoading: false });
         }
       })
       .catch(error => console.error('Error fetching images:', error))
       .finally(() => this.setState({ isLoading: false }));
   }
+
+  handleLoadMore = event => {
+    event.preventDefault();
+    this.setState(prevState => ({
+      currentPage: prevState.currentPage + 1,
+    }));
+  };
 
   render() {
     const { images, isLoading } = this.state;
@@ -66,12 +80,12 @@ class Gallery extends Component {
               {images.map(image => (
                 <GalleryItem
                   key={image.id}
-                  imageUrl={image.largeImageURL}
+                  imageUrl={image.webformatURL}
                   alt={image.tags}
                 />
               ))}
             </ul>
-            <Button />
+            <Button onClick={this.handleLoadMore} />
           </>
         ) : (
           <div>No images</div>
